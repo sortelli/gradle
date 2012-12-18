@@ -17,13 +17,12 @@
 package org.gradle.api.publish.ivy.internal;
 
 import org.gradle.api.Action;
-import org.gradle.api.Transformer;
-import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.Module;
 import org.gradle.api.artifacts.PublishArtifact;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.internal.artifacts.configurations.DependencyMetaDataProvider;
+import org.gradle.api.internal.component.ComponentInternal;
 import org.gradle.api.internal.file.FileResolver;
 import org.gradle.api.internal.file.collections.DefaultConfigurableFileCollection;
 import org.gradle.api.internal.tasks.TaskResolver;
@@ -31,28 +30,24 @@ import org.gradle.api.publish.ivy.IvyModuleDescriptor;
 import org.gradle.internal.reflect.Instantiator;
 
 import java.io.File;
-import java.util.Set;
-import java.util.TreeSet;
 import java.util.concurrent.Callable;
-
-import static org.gradle.util.CollectionUtils.*;
 
 public class DefaultIvyPublication implements IvyPublicationInternal {
 
     private final String name;
     private final IvyModuleDescriptorInternal descriptor;
     private final DependencyMetaDataProvider dependencyMetaDataProvider;
-    private final Set<? extends Configuration> configurations;
+    private final ComponentInternal component;
     private final FileResolver fileResolver;
     private final TaskResolver taskResolver;
     private PublishArtifact descriptorArtifact;
 
     public DefaultIvyPublication(
-            String name, Instantiator instantiator, Set<? extends Configuration> configurations,
+            String name, Instantiator instantiator, ComponentInternal component,
             DependencyMetaDataProvider dependencyMetaDataProvider, FileResolver fileResolver, TaskResolver taskResolver
     ) {
         this.name = name;
-        this.configurations = configurations;
+        this.component = component;
         this.dependencyMetaDataProvider = dependencyMetaDataProvider;
         this.fileResolver = fileResolver;
         this.taskResolver = taskResolver;
@@ -73,15 +68,7 @@ public class DefaultIvyPublication implements IvyPublicationInternal {
 
     public FileCollection getPublishableFiles() {
         ConfigurableFileCollection files = new DefaultConfigurableFileCollection("publication artifacts", fileResolver, taskResolver);
-        files.from(new Callable<Set<FileCollection>>() {
-            public Set<FileCollection> call() throws Exception {
-                return collect(getConfigurations(), new Transformer<FileCollection, Configuration>() {
-                    public FileCollection transform(Configuration configuration) {
-                        return configuration.getAllArtifacts().getFiles();
-                    }
-                });
-            }
-        });
+        files.from(component.getArtifacts().getFiles());
         if (descriptorArtifact != null) {
             files.from(new Callable<File>() {
                 public File call() throws Exception {
@@ -94,7 +81,7 @@ public class DefaultIvyPublication implements IvyPublicationInternal {
     }
 
     public IvyNormalizedPublication asNormalisedPublication() {
-        return new IvyNormalizedPublication(getModule(), getFlattenedConfigurations(), getDescriptorFile());
+        return new IvyNormalizedPublication(getModule(), component.getArtifacts(), component.getRuntimeDependencies(), getDescriptorFile());
     }
 
     public Module getModule() {
@@ -105,26 +92,12 @@ public class DefaultIvyPublication implements IvyPublicationInternal {
         return IvyNormalizedPublication.class;
     }
 
-    public Set<? extends Configuration> getConfigurations() {
-        return configurations;
-    }
-
     public void setDescriptorArtifact(PublishArtifact descriptorArtifact) {
         this.descriptorArtifact = descriptorArtifact;
     }
 
     private File getDescriptorFile() {
         return descriptorArtifact.getFile();
-    }
-
-    // Flattens each of the given configurations to include any parents, visible or not.
-    private Set<Configuration> getFlattenedConfigurations() {
-        Set<Configuration> flattenedConfigurations = new TreeSet<Configuration>(new Namer.Comparator<Configuration>(new Configuration.Namer()));
-        return inject(flattenedConfigurations, configurations, new Action<InjectionStep<Set<Configuration>, Configuration>>() {
-            public void execute(InjectionStep<Set<Configuration>, Configuration> step) {
-                step.getTarget().addAll(step.getItem().getHierarchy());
-            }
-        });
     }
 
 }

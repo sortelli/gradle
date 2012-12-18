@@ -95,8 +95,12 @@ public class DefaultConfigurationContainer extends AbstractNamedDomainObjectCont
     }
 
     public Configuration detachedConfiguration(Dependency... dependencies) {
-        DetachedConfigurationsProvider detachedConfigurationsProvider = new DetachedConfigurationsProvider();
         String name = DETACHED_CONFIGURATION_DEFAULT_NAME + detachedConfigurationDefaultNameCounter++;
+        return detachedConfiguration(name, dependencies);
+    }
+
+    public Configuration detachedConfiguration(String name, Dependency... dependencies) {
+        DetachedConfigurationsProvider detachedConfigurationsProvider = new DetachedConfigurationsProvider();
         DefaultConfiguration detachedConfiguration = new DefaultConfiguration(
                 name, name, detachedConfigurationsProvider, dependencyResolver,
                 listenerManager, dependencyMetaDataProvider, resolutionStrategyFactory);
@@ -107,7 +111,7 @@ public class DefaultConfigurationContainer extends AbstractNamedDomainObjectCont
         detachedConfigurationsProvider.setTheOnlyConfiguration(detachedConfiguration);
         return detachedConfiguration;
     }
-    
+
     /**
      * Build a formatted representation of all Configurations in this ConfigurationContainer.
      * Configuration(s) being toStringed are likely derivations of DefaultConfiguration.

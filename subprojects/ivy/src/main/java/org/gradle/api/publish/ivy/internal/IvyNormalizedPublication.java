@@ -16,21 +16,23 @@
 
 package org.gradle.api.publish.ivy.internal;
 
-import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.artifacts.Module;
+import org.gradle.api.artifacts.PublishArtifact;
 
 import java.io.File;
-import java.util.Set;
 
 public class IvyNormalizedPublication {
 
     private final Module module;
     private final File descriptorFile;
-    private final Set<? extends Configuration> configurations;
+    private final Iterable<PublishArtifact> artifacts;
+    private final Iterable<Dependency> runtimeDependencies;
 
-    public IvyNormalizedPublication(Module module, Set<? extends Configuration> configurations, File descriptorFile) {
+    public IvyNormalizedPublication(Module module, Iterable<PublishArtifact> artifacts, Iterable<Dependency> runtimeDependencies, File descriptorFile) {
         this.module = module;
-        this.configurations = configurations;
+        this.artifacts = artifacts;
+        this.runtimeDependencies = runtimeDependencies;
         this.descriptorFile = descriptorFile;
     }
 
@@ -38,12 +40,15 @@ public class IvyNormalizedPublication {
         return module;
     }
 
-    public Set<? extends Configuration> getConfigurations() {
-        return configurations;
-    }
-
     public File getDescriptorFile() {
         return descriptorFile;
     }
 
+    public Iterable<PublishArtifact> getArtifacts() {
+        return artifacts;
+    }
+
+    public Iterable<Dependency> getRuntimeDependencies() {
+        return runtimeDependencies;
+    }
 }

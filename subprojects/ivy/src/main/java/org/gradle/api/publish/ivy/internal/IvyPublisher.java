@@ -17,24 +17,45 @@
 package org.gradle.api.publish.ivy.internal;
 
 import org.apache.ivy.plugins.resolver.DependencyResolver;
+import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.artifacts.Dependency;
+import org.gradle.api.artifacts.PublishArtifact;
 import org.gradle.api.artifacts.repositories.IvyArtifactRepository;
 import org.gradle.api.internal.Cast;
 import org.gradle.api.internal.artifacts.ArtifactPublisher;
 import org.gradle.api.internal.artifacts.repositories.ArtifactRepositoryInternal;
+import org.gradle.internal.Factory;
 
 import java.util.Collections;
 
 public class IvyPublisher {
 
     private final ArtifactPublisher artifactPublisher;
+    private final Factory<Configuration> configurationFactory;
 
-    public IvyPublisher(ArtifactPublisher artifactPublisher) {
+    public IvyPublisher(ArtifactPublisher artifactPublisher, Factory<Configuration> configurationFactory) {
         this.artifactPublisher = artifactPublisher;
+        this.configurationFactory = configurationFactory;
     }
 
     public void publish(IvyNormalizedPublication publication, IvyArtifactRepository repository) {
+        Configuration publishConfiguration = createPopulatedConfiguration(publication.getArtifacts(), publication.getRuntimeDependencies());
         DependencyResolver dependencyResolver = Cast.cast(ArtifactRepositoryInternal.class, repository).createResolver();
-        artifactPublisher.publish(Collections.singleton(dependencyResolver), publication.getModule(), publication.getConfigurations(), publication.getDescriptorFile());
+        artifactPublisher.publish(Collections.singleton(dependencyResolver), publication.getModule(), Collections.singleton(publishConfiguration), publication.getDescriptorFile());
     }
+
+    private Configuration createPopulatedConfiguration(Iterable<PublishArtifact> artifacts, Iterable<Dependency> runtimeDependencies) {
+        Configuration configuration = configurationFactory.create();
+        for (PublishArtifact artifact : artifacts) {
+            configuration.getArtifacts().add(artifact);
+        }
+
+        // Only artifacts required here?
+//        for (Dependency runtimeDependency : runtimeDependencies) {
+//            configuration.getDependencies().add(runtimeDependency);
+//        }
+        return configuration;
+    }
+
 
 }

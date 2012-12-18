@@ -18,6 +18,8 @@ package org.gradle.api.publish.ivy.tasks;
 
 import org.apache.ivy.core.module.descriptor.ModuleDescriptor;
 import org.gradle.api.*;
+import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.artifacts.PublishArtifact;
 import org.gradle.api.internal.artifacts.ArtifactPublicationServices;
 import org.gradle.api.internal.artifacts.ivyservice.IvyModuleDescriptorWriter;
@@ -35,6 +37,8 @@ import org.gradle.api.tasks.TaskDependency;
 import javax.inject.Inject;
 import java.io.File;
 import java.util.Date;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 /**
  * Generates an Ivy XML Module Descriptor file.
@@ -120,10 +124,29 @@ public class GenerateIvyDescriptor extends DefaultTask {
 
         IvyModuleDescriptorInternal descriptorInternal = toIvyModuleDescriptorInternal(getDescriptor());
 
+        Set<Configuration> publishConfigurations = createPopulatedConfiguration(descriptorInternal.getArtifacts(), descriptorInternal.getRuntimeDependencies());
+
         ModuleDescriptorConverter moduleDescriptorConverter = publicationServices.getDescriptorFileModuleConverter();
-        ModuleDescriptor moduleDescriptor = moduleDescriptorConverter.convert(descriptorInternal.getConfigurations(), descriptorInternal.getModule());
+        ModuleDescriptor moduleDescriptor = moduleDescriptorConverter.convert(publishConfigurations, descriptorInternal.getModule());
         IvyModuleDescriptorWriter ivyModuleDescriptorWriter = publicationServices.getIvyModuleDescriptorWriter();
         ivyModuleDescriptorWriter.write(moduleDescriptor, getDestination(), xmlTransformer);
+    }
+
+    private Set<Configuration> createPopulatedConfiguration(Iterable<PublishArtifact> artifacts, Iterable<Dependency> runtimeDependencies) {
+        Configuration runtimeConfiguration = getProject().getConfigurations().detachedConfiguration("runtime");
+        for (PublishArtifact artifact : artifacts) {
+            runtimeConfiguration.getArtifacts().add(artifact);
+        }
+        for (Dependency runtimeDependency : runtimeDependencies) {
+            runtimeConfiguration.getDependencies().add(runtimeDependency);
+        }
+        Configuration defaultConfiguration = getProject().getConfigurations().detachedConfiguration("default");
+        defaultConfiguration.extendsFrom(runtimeConfiguration);
+
+        Set<Configuration> configurations = new LinkedHashSet<Configuration>();
+        configurations.add(runtimeConfiguration);
+        configurations.add(defaultConfiguration);
+        return configurations;
     }
 
 

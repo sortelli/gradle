@@ -17,13 +17,12 @@
 package org.gradle.api.publish.ivy.internal;
 
 import org.gradle.api.Action;
-import org.gradle.api.internal.UserCodeAction;
 import org.gradle.api.XmlProvider;
-import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.artifacts.Module;
+import org.gradle.api.artifacts.PublishArtifact;
+import org.gradle.api.internal.UserCodeAction;
 import org.gradle.listener.ActionBroadcast;
-
-import java.util.Set;
 
 public class DefaultIvyModuleDescriptor implements IvyModuleDescriptorInternal {
 
@@ -38,10 +37,6 @@ public class DefaultIvyModuleDescriptor implements IvyModuleDescriptorInternal {
         return ivyPublication.getModule();
     }
 
-    public Set<? extends Configuration> getConfigurations() {
-        return ivyPublication.asNormalisedPublication().getConfigurations();
-    }
-
     public void withXml(Action<? super XmlProvider> action) {
         xmlActions.add(new UserCodeAction<XmlProvider>("Could not apply withXml() to Ivy module descriptor", action));
     }
@@ -50,4 +45,11 @@ public class DefaultIvyModuleDescriptor implements IvyModuleDescriptorInternal {
         return xmlActions;
     }
 
+    public Iterable<PublishArtifact> getArtifacts() {
+        return ivyPublication.asNormalisedPublication().getArtifacts();
+    }
+
+    public Iterable<Dependency> getRuntimeDependencies() {
+        return ivyPublication.asNormalisedPublication().getRuntimeDependencies();
+    }
 }

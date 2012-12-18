@@ -16,12 +16,11 @@
 
 package org.gradle.api.publish.ivy.plugins;
 
-import org.gradle.api.Incubating;
-import org.gradle.api.Plugin;
-import org.gradle.api.Project;
-import org.gradle.api.Task;
+import org.gradle.api.*;
 import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.component.Component;
 import org.gradle.api.internal.artifacts.configurations.DependencyMetaDataProvider;
+import org.gradle.api.internal.component.ComponentInternal;
 import org.gradle.api.internal.file.FileResolver;
 import org.gradle.api.publish.PublishingExtension;
 import org.gradle.api.publish.ivy.IvyPublication;
@@ -60,17 +59,22 @@ public class IvyPublishPlugin implements Plugin<Project> {
         this.fileResolver = fileResolver;
     }
 
-    public void apply(Project project) {
+    public void apply(final Project project) {
         project.getPlugins().apply(PublishingPlugin.class);
-        PublishingExtension extension = project.getExtensions().getByType(PublishingExtension.class);
 
         // Create the default publication
-        Set<Configuration> visibleConfigurations = project.getConfigurations().matching(new Spec<Configuration>() {
-            public boolean isSatisfiedBy(Configuration configuration) {
-                return configuration.isVisible();
+        final PublishingExtension extension = project.getExtensions().getByType(PublishingExtension.class);
+
+        // Create the default publication for any components
+        project.getComponents().all(new Action<Component>() {
+            public void execute(Component component) {
+                if (extension.getPublications().withType(IvyPublication.class).isEmpty()) {
+                    extension.getPublications().add(createPublication("ivy", project, (ComponentInternal) component));
+                } else {
+                    throw new IllegalStateException("Cannot publish with multiple components");
+                }
             }
         });
-        extension.getPublications().add(createPublication("ivy", project, visibleConfigurations));
 
         TaskContainer tasks = project.getTasks();
 
@@ -84,10 +88,10 @@ public class IvyPublishPlugin implements Plugin<Project> {
         publishTaskCreator.monitor(extension.getPublications(), extension.getRepositories());
     }
 
-    private IvyPublication createPublication(String name, final Project project, Set<? extends Configuration> configurations) {
+    private IvyPublication createPublication(String name, final Project project, ComponentInternal component) {
         return instantiator.newInstance(
                 DefaultIvyPublication.class,
-                name, instantiator, configurations, dependencyMetaDataProvider, fileResolver, project.getTasks()
+                name, instantiator, component, dependencyMetaDataProvider, fileResolver, project.getTasks()
         );
     }
 }

@@ -125,5 +125,13 @@ public interface ConfigurationContainer extends NamedDomainObjectContainer<Confi
      * @param dependencies The dependencies of the configuration.
      * @return The configuration.
      */
+    Configuration detachedConfiguration(String name, Dependency... dependencies);
+
+    /**
+     * Creates a configuration, but does not add it to this container.
+     *
+     * @param dependencies The dependencies of the configuration.
+     * @return The configuration.
+     */
     Configuration detachedConfiguration(Dependency... dependencies);
 }
