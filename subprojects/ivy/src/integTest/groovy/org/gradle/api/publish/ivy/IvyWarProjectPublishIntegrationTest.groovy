@@ -42,6 +42,7 @@ class IvyWarProjectPublishIntegrationTest extends AbstractIntegrationSpec {
             }
 
             publishing {
+                publishedComponents << components['war']
                 repositories {
                     ivy {
                         url '${ivyRepo.uri}'
@@ -55,6 +56,6 @@ class IvyWarProjectPublishIntegrationTest extends AbstractIntegrationSpec {
 
         then:
         def ivyModule = ivyRepo.module("org.gradle.test", "publishTest", "1.9")
-        ivyModule.assertArtifactsPublished("ivy-1.9.xml", "publishTest-1.9.war", "publishTest-1.9.jar")
+        ivyModule.assertArtifactsPublished("ivy-1.9.xml", "publishTest-1.9.war")
     }
 }
