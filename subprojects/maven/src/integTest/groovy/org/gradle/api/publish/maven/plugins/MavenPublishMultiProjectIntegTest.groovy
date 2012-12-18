@@ -136,6 +136,7 @@ subprojects {
     apply plugin: "maven-publish"
 
     publishing {
+        publishedComponents << components['java']
         repositories {
             maven { url "file:///\$rootProject.projectDir/maven-repo" }
         }

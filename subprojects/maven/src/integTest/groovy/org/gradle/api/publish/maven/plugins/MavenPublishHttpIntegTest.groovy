@@ -56,6 +56,7 @@ class MavenPublishHttpIntegTest extends AbstractIntegrationSpec {
             group = '$group'
 
             publishing {
+                publishedComponents << components['java']
                 repositories {
                     maven {
                         url "$mavenRemoteRepo.uri"

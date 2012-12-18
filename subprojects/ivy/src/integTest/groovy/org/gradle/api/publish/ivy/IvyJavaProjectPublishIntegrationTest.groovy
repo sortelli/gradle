@@ -42,6 +42,7 @@ class IvyJavaProjectPublishIntegrationTest extends AbstractIntegrationSpec {
             }
 
             publishing {
+                publishedComponents << components['java']
                 repositories {
                     ivy {
                         url '${ivyRepo.uri}'

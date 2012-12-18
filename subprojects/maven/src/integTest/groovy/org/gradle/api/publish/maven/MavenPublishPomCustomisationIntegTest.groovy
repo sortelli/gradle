@@ -37,6 +37,7 @@ class MavenPublishPomCustomisationIntegTest extends AbstractIntegrationSpec {
             version = '1.0'
 
             publishing {
+                publishedComponents << components['java']
                 repositories {
                     maven { url "${mavenRepo.uri}" }
                 }
@@ -85,6 +86,7 @@ class MavenPublishPomCustomisationIntegTest extends AbstractIntegrationSpec {
             version = '${version}'
 
             publishing {
+                publishedComponents << components['java']
                 repositories {
                     maven { url "${mavenRepo.uri}" }
                 }
@@ -117,6 +119,7 @@ class MavenPublishPomCustomisationIntegTest extends AbstractIntegrationSpec {
             version = '1.0'
 
             publishing {
+                publishedComponents << components['java']
                 repositories {
                     maven { url "${mavenRepo.uri}" }
                 }

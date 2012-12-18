@@ -40,6 +40,7 @@ class MavenPublishJavaIntegTest extends AbstractIntegrationSpec {
             }
 
             publishing {
+                publishedComponents << components['java']
                 repositories {
                     maven { url "${mavenRepo.uri}" }
                 }
