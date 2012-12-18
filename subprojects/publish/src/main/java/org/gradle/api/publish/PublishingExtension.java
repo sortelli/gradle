@@ -19,6 +19,7 @@ package org.gradle.api.publish;
 import org.gradle.api.Action;
 import org.gradle.api.Incubating;
 import org.gradle.api.artifacts.dsl.RepositoryHandler;
+import org.gradle.api.component.ComponentContainer;
 
 /**
  * The configuration of how to “publish” the different components of a project.

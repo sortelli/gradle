@@ -22,6 +22,7 @@ import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.artifacts.dsl.ArtifactHandler;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.artifacts.dsl.RepositoryHandler;
+import org.gradle.api.component.ComponentContainer;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.ConfigurableFileTree;
 import org.gradle.api.file.CopySpec;
@@ -1471,4 +1472,13 @@ public interface Project extends Comparable<Project>, ExtensionAware {
      * @return Returned instance contains various resource-specific utility methods.
      */
     ResourceHandler getResources();
+
+    /**
+     * Returns the components produced by this project.
+     *
+     * <h3>Examples:</h3> See docs for {@link ComponentContainer}
+     *
+     * @return The components for this project.
+     */
+    ComponentContainer getComponents();
 }

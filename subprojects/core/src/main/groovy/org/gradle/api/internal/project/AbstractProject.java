@@ -24,6 +24,7 @@ import org.gradle.api.artifacts.Module;
 import org.gradle.api.artifacts.dsl.ArtifactHandler;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.artifacts.dsl.RepositoryHandler;
+import org.gradle.api.component.ComponentContainer;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.ConfigurableFileTree;
 import org.gradle.api.file.CopySpec;
@@ -141,6 +142,8 @@ public abstract class AbstractProject implements ProjectInternal, DynamicObjectA
 
     private LoggingManagerInternal loggingManager;
 
+    private ComponentContainer componentContainer;
+
     private ExtensibleDynamicObject extensibleDynamicObject;
 
     private String description;
@@ -188,6 +191,7 @@ public abstract class AbstractProject implements ProjectInternal, DynamicObjectA
         scriptClassLoaderProvider = services.get(ScriptClassLoaderProvider.class);
         projectRegistry = services.get(IProjectRegistry.class);
         loggingManager = services.get(LoggingManagerInternal.class);
+        componentContainer = services.get(ComponentContainer.class);
 
         extensibleDynamicObject = new ExtensibleDynamicObject(this, services.get(Instantiator.class));
         if (parent != null) {
@@ -364,8 +368,6 @@ public abstract class AbstractProject implements ProjectInternal, DynamicObjectA
     public void setConfigurationContainer(ConfigurationContainerInternal configurationContainer) {
         this.configurationContainer = configurationContainer;
     }
-
-
 
     public Convention getConvention() {
         return extensibleDynamicObject.getConvention();
@@ -782,6 +784,10 @@ public abstract class AbstractProject implements ProjectInternal, DynamicObjectA
 
     public LoggingManager getLogging() {
         return loggingManager;
+    }
+
+    public ComponentContainer getComponents() {
+        return componentContainer;
     }
 
     public Object property(String propertyName) throws MissingPropertyException {
