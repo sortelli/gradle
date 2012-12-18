@@ -17,7 +17,6 @@
 package org.gradle.api.publish.ivy.plugins;
 
 import org.gradle.api.*;
-import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.component.Component;
 import org.gradle.api.internal.artifacts.configurations.DependencyMetaDataProvider;
 import org.gradle.api.internal.component.ComponentInternal;
@@ -28,12 +27,10 @@ import org.gradle.api.publish.ivy.internal.DefaultIvyPublication;
 import org.gradle.api.publish.ivy.tasks.internal.IvyPublicationDynamicDescriptorGenerationTaskCreator;
 import org.gradle.api.publish.ivy.tasks.internal.IvyPublishDynamicTaskCreator;
 import org.gradle.api.publish.plugins.PublishingPlugin;
-import org.gradle.api.specs.Spec;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.internal.reflect.Instantiator;
 
 import javax.inject.Inject;
-import java.util.Set;
 
 /**
  * Configures the project to publish a “main” IvyPublication to a “main” IvyArtifactRepository.
@@ -66,7 +63,7 @@ public class IvyPublishPlugin implements Plugin<Project> {
         final PublishingExtension extension = project.getExtensions().getByType(PublishingExtension.class);
 
         // Create the default publication for any components
-        project.getComponents().all(new Action<Component>() {
+        extension.getPublishedComponents().all(new Action<Component>() {
             public void execute(Component component) {
                 if (extension.getPublications().withType(IvyPublication.class).isEmpty()) {
                     extension.getPublications().add(createPublication("ivy", project, (ComponentInternal) component));

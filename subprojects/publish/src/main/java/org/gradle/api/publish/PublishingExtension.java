@@ -73,6 +73,8 @@ public interface PublishingExtension {
      */
     void repositories(Action<? super RepositoryHandler> configure);
 
+    ComponentContainer getPublishedComponents();
+
     /**
      * The publications of the project.
      * <p>

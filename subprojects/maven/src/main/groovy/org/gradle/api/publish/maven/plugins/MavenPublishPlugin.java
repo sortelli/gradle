@@ -63,7 +63,7 @@ public class MavenPublishPlugin implements Plugin<Project> {
         final PublishingExtension extension = project.getExtensions().getByType(PublishingExtension.class);
 
         // Create the default publication for any components
-        project.getComponents().all(new Action<Component>() {
+        extension.getPublishedComponents().all(new Action<Component>() {
             public void execute(Component component) {
                 if (extension.getPublications().withType(MavenPublication.class).isEmpty()) {
                     extension.getPublications().add(createPublication("maven", project, component));

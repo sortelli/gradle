@@ -48,6 +48,7 @@ class MavenPublishBasicIntegTest extends AbstractIntegrationSpec {
             version = '1.0'
 
             publishing {
+                publishedComponents.add(components['java'])
                 repositories {
                     maven { url "${mavenRepo.uri}" }
                 }
@@ -78,6 +79,7 @@ class MavenPublishBasicIntegTest extends AbstractIntegrationSpec {
             version = '1.0'
 
             publishing {
+                publishedComponents << components['java']
                 repositories {
                     maven { url "${mavenRepo.uri}" }
                 }
