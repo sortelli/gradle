@@ -39,7 +39,20 @@ public class Download implements IDownload {
 
     public void download(URI address, File destination) throws Exception {
         destination.getParentFile().mkdirs();
-        downloadInternal(address, destination);
+		try {
+			downloadInternal(address, destination);
+		} catch (IOException e) {
+			String alternateDistDir = System.getProperty("org.gradle.alternateDistDir");
+			if (alternateDistDir != null) {
+				String distName = address.getPath().replaceFirst(".*/", "").replaceFirst(".*\\\\", "");
+				URI localDist = new File(alternateDistDir, distName).toURI();
+				System.out.println(String.format("Looking in alternate location %s", localDist));
+				downloadInternal(localDist, destination);
+			}
+			else {
+				throw e;
+			}
+		}
     }
 
     private void downloadInternal(URI address, File destination)
